@@ -31,6 +31,8 @@ class _AuthScreenState extends State<AuthScreen> {
   TextEditingController _phone = TextEditingController();
   String _verificationID = '';
   bool codeSumbit = false;
+  bool codeVerify = true;
+  final _pinPutController = TextEditingController();
 
   getPage() {
     switch (numScreen) {
@@ -159,46 +161,60 @@ class _AuthScreenState extends State<AuthScreen> {
                                   color: Colors.white,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(5))),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Введите полученный код',
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 35,
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.only(
-                                        left:
-                                            MediaQuery.of(context).size.width /
-                                                10,
-                                        right:
-                                            MediaQuery.of(context).size.width /
-                                                10),
-                                    child: PinPut(
-                                        onSubmit: (value) async {},
-                                        fieldsCount: 6,
-                                        fieldsAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        animationDuration: Duration(seconds: 0),
-                                        textStyle: TextStyle(
-                                            fontSize: 28,
-                                            color: Color(0xFF323232)),
-                                        preFilledWidget: Container(
-                                          width: 12,
-                                          height: 2,
-                                          color:
-                                              Color.fromRGBO(197, 206, 224, 1),
-                                        )),
-                                  ),
-                                ],
-                              ),
+                              child: Column(children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Введите полученный код',
+                                      style: TextStyle(fontSize: 14),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 35,
+                                ),
+                                Container(
+                                  margin: EdgeInsets.only(
+                                      left: MediaQuery.of(context).size.width /
+                                          10,
+                                      right: MediaQuery.of(context).size.width /
+                                          10),
+                                  child: PinPut(
+                                      onSubmit: (value) async {
+                                        try {
+                                          bool value = await fbAuth.submitCode(
+                                              code: _pinPutController.text,
+                                              verificationId: _verificationID,
+                                              context: context);
+                                          if (!value) {
+                                            setState(() {
+                                              codeVerify = false;
+                                            });
+                                          }
+                                        } on MessageException catch (e) {
+                                          CustomSnackBar(context,
+                                              Text(e.message), Colors.red);
+                                        }
+                                      },
+                                      controller: _pinPutController,
+                                      fieldsCount: 6,
+                                      fieldsAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      animationDuration: Duration(seconds: 0),
+                                      textStyle: TextStyle(
+                                          fontSize: 28,
+                                          color: Color(0xFF323232)),
+                                      preFilledWidget: Container(
+                                        width: 12,
+                                        height: 2,
+                                        color: Color.fromRGBO(197, 206, 224, 1),
+                                      )),
+                                ),
+                                if (!codeVerify)
+                                  Text('Неверный код',
+                                      style: TextStyle(fontSize: 14)),
+                              ]),
                             ),
                           ],
                         ),
@@ -372,7 +388,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   style: ElevatedButton.styleFrom(
                       textStyle: const TextStyle(fontSize: 20)),
                   onPressed: () {
-                    _phoneAuth();
+                    _validateAuth();
                   },
                   child: const Text('Войти'),
                 ),
@@ -453,20 +469,17 @@ class _AuthScreenState extends State<AuthScreen> {
               SizedBox(
                 height: 25,
               ),
-
-              SizedBox(
-                height: 25,
+              Container(
+                width: MediaQuery.of(context).size.width,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      textStyle: const TextStyle(fontSize: 20)),
+                  onPressed: () {
+                    _phoneAuth();
+                  },
+                  child: const Text('Войти'),
+                ),
               ),
-              // PrimaryButton(
-              //     onPressed: () {
-              //       try {
-              //         _phoneAuth();
-              //       } on MessageException catch (e) {
-              //         _scaffoldKey?.currentState
-              //             ?.showSnackBar(SnackBarScope.show(e.message));
-              //       }
-              //     },
-              //     text: 'Войти'),
               SizedBox(
                 height: 25,
               ),
