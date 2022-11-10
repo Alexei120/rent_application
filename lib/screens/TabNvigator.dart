@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:beamer/beamer.dart';
 import 'package:rent_application/screens/DetailScreen.dart';
 import 'package:rent_application/screens/RootScreen.dart';
+import 'package:rent_application/screens/notes/NoteApartmentsScreen.dart';
+import 'package:rent_application/screens/notes/NoteHomePhoneDetailScreen.dart';
 import 'package:rent_application/screens/notes/NotesScreen.dart';
 import 'package:rent_application/theme/model_theme.dart';
 import 'package:provider/provider.dart';
@@ -55,14 +57,31 @@ class ALocation extends BeamLocation<BeamState> {
           key: ValueKey('a'),
           title: 'Tab A',
           type: BeamPageType.noTransition,
-          child: NotesScreen (label: 'A', detailsPath: '/a/details', detailsHomePhonePath: '',),
+          child: NotesScreen(
+              label: 'A',
+              detailsPath: '/a/notedetails',
+              detailsHomePhonePath: '/a/notedetails/notehomephonedetails',
+              detailsApartmentsPath: '/a/notedetails/noteapartmentdetails'),
         ),
-        if (state.uri.pathSegments.length == 2)
+        if (state.uri.pathSegments.length == 3 &&
+            state.uri.path == '/a/notedetails/notehomephonedetails')
           const BeamPage(
-            key: ValueKey('a/details'),
-            title: 'Details A',
-            child: DetailsScreen(label: 'A'),
+            key: ValueKey('/a/notedetails/notehomephonedetails'),
+            title: 'Details Note',
+            child: NoteHomePhoneDetailScreen(
+                label: 'Note',
+                detailsHomePhonePath: '/a/notedetails/notehomephonedetails'),
           ),
+        if (state.uri.pathSegments.length == 3 &&
+            state.uri.path == '/a/notedetails/noteapartmentdetails')
+          const BeamPage(
+            key: ValueKey('/a/notedetails/notehomephonedetails'),
+            title: 'Details Note',
+            child: NoteApartmentsScreen(
+                label: 'Note',
+                detailsApartmentPath: '/a/notedetails/noteapartmentdetails'),
+          ),
+
       ];
 }
 
